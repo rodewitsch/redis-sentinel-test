@@ -1,0 +1,58 @@
+services:
+    redis-master:
+        image: redis:3
+        network_mode: host
+        command: redis-server --port 6380
+
+    redis-slave-1:
+        image: redis:3
+        network_mode: host
+        command: redis-server --port 6381 --slaveof 127.0.0.1 6380
+
+    redis-slave-2:
+        image: redis:3
+        network_mode: host
+        command: redis-server --port 6382 --slaveof 127.0.0.1 6380
+
+    sentinel-1:
+        image: bitnami/redis-sentinel:latest
+        network_mode: host
+        environment:
+            - REDIS_MASTER_HOST=127.0.0.1
+            - REDIS_MASTER_PORT_NUMBER=6380
+            - REDIS_SENTINEL_MASTER_NAME=mymaster
+            - REDIS_SENTINEL_PORT_NUMBER=26379
+            - REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS=5000
+            - REDIS_SENTINEL_FAILOVER_TIMEOUT=5000
+        depends_on:
+            - redis-master
+            - redis-slave-1
+            - redis-slave-2
+    sentinel-2:
+        image: bitnami/redis-sentinel:latest
+        network_mode: host
+        environment:
+            - REDIS_MASTER_HOST=127.0.0.1
+            - REDIS_MASTER_PORT_NUMBER=6380
+            - REDIS_SENTINEL_MASTER_NAME=mymaster
+            - REDIS_SENTINEL_PORT_NUMBER=26380
+            - REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS=5000
+            - REDIS_SENTINEL_FAILOVER_TIMEOUT=5000
+        depends_on:
+            - redis-master
+            - redis-slave-1
+            - redis-slave-2
+    sentinel-3:
+        image: bitnami/redis-sentinel:latest
+        network_mode: host
+        environment:
+            - REDIS_MASTER_HOST=127.0.0.1
+            - REDIS_MASTER_PORT_NUMBER=6380
+            - REDIS_SENTINEL_MASTER_NAME=mymaster
+            - REDIS_SENTINEL_PORT_NUMBER=26381
+            - REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS=5000
+            - REDIS_SENTINEL_FAILOVER_TIMEOUT=5000
+        depends_on:
+            - redis-master
+            - redis-slave-1
+            - redis-slave-2
